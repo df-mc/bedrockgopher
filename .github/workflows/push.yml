@@ -74,14 +74,14 @@ jobs:
 
       - name: Stop bot
         env:
-          HOST: ${{ secrets.HOST }}
+          HOST: ${{ secrets.VPS_HOST }}
         run: |
           ssh -i ~/.ssh/id_rsa $HOST screen -d -R -S dragonfly -X stuff '^C'
           ssh -i ~/.ssh/id_rsa $HOST rm -f bedrock_gopher
 
       - name: Transfer executable
         env:
-          HOST: ${{ secrets.HOST }}
+          HOST: ${{ secrets.VPS_HOST }}
           SSH_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
           SSH_PRIVATE_KEY: ${{ secrets.VPS_PRIVATE_KEY }}
         run: |
