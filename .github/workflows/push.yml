@@ -63,9 +63,9 @@ jobs:
 
       - name: Set SSH info
         env:
-          HOST: ${{ secrets.HOST }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+          SSH_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
@@ -82,8 +82,8 @@ jobs:
       - name: Transfer executable
         env:
           HOST: ${{ secrets.HOST }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_PRIVATE_KEY }}
         run: |
           scp -i ~/.ssh/id_rsa bedrock_gopher $HOST:/home/bedrock_gopher
 
