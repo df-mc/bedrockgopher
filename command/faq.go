@@ -65,10 +65,7 @@ func FAQ(bot *bedrockgopher.Bot) diskoi.Command {
 
 		return s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: "The requested faq entry has been updated!",
-				Flags:   1 << 6,
-			},
+			Data: &discordgo.InteractionResponseData{Content: "The requested faq entry has been updated!", Flags: 1 << 6},
 		})
 	})
 	editE.MustSetRequired("MessageID", true)
@@ -76,6 +73,20 @@ func FAQ(bot *bedrockgopher.Bot) diskoi.Command {
 	cg := diskoi.NewCommandGroup("faq", "Manage the guild's FAQ channel")
 	cg.AddSubcommand(newE)
 	cg.AddSubcommand(editE)
+
+	cg.SetChain(diskoi.NewChain(func(next diskoi.Middleware) diskoi.Middleware {
+		return func(r diskoi.Request) error {
+			member := r.Interaction().Member
+			if member.Permissions&discordgo.PermissionManageMessages > 0 {
+				return next(r)
+			}
+
+			return r.Session().InteractionRespond(r.Interaction().Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{Content: "You do not have the required permissions to run this command", Flags: 1 << 6},
+			})
+		}
+	}))
 
 	return cg
 }
