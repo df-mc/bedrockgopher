@@ -91,4 +91,4 @@ jobs:
         env:
           HOST: ${{ secrets.HOST }}
         run: |
-          ssh -i ~/.ssh/id_rsa $HOST "screen -d -R -S bedrock_gopher -X stuff '/home/bedrock_gopher\n'"
+          ssh -i ~/.ssh/id_rsa $HOST "screen -d -R -S bedrock_gopher -X stuff './bedrock_gopher\n'"
