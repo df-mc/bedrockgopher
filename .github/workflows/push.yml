@@ -76,7 +76,7 @@ jobs:
         env:
           HOST: ${{ secrets.VPS_HOST }}
         run: |
-          ssh -i ~/.ssh/id_rsa $HOST screen -d -R -S dragonfly -X stuff '^C'
+          ssh -i ~/.ssh/id_rsa $HOST screen -d -R -S bedrock_gopher -X stuff '^C'
           ssh -i ~/.ssh/id_rsa $HOST rm -f bedrock_gopher
 
       - name: Transfer executable
@@ -89,6 +89,6 @@ jobs:
 
       - name: Restart bot
         env:
-          HOST: ${{ secrets.HOST }}
+          HOST: ${{ secrets.VPS_HOST }}
         run: |
           ssh -i ~/.ssh/id_rsa $HOST "screen -d -R -S bedrock_gopher -X stuff './bedrock_gopher\n'"
