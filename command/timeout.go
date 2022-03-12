@@ -13,7 +13,7 @@ type timeoutArgs struct {
 }
 
 func Timeout() diskoi.Command {
-	cmd := diskoi.MustNewExecutor("timeout", "timeout a user", timeout)
+	cmd := diskoi.MustNewExecutor("timeout", "Timeout a user", timeout)
 	_ = cmd.SetChain(diskoi.NewChain(checkPerms(discordgo.PermissionManageMessages)))
 	return cmd
 }
@@ -37,6 +37,6 @@ func timeout(s *discordgo.Session, i *discordgo.InteractionCreate, args timeoutA
 	}
 	return s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{Content: fmt.Sprintf(`Timed out %s for "%s"`, args.User.Username, d.String()), Flags: 1 << 6},
+		Data: &discordgo.InteractionResponseData{Content: fmt.Sprintf(`Timed out %s for "%s"(expired <t:%d:R>)`, args.User.Username, d.String(), t.Unix()), Flags: 1 << 6},
 	})
 }
