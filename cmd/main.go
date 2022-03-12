@@ -34,6 +34,7 @@ func main() {
 	bot.Session().AddHandlerOnce(bot.HandleReady)
 
 	bot.AddCommand(command.FAQ(bot))
+	bot.AddCommand(command.Timeout())
 
 	if err := bot.Run(); err != nil {
 		log.Fatal(err)
