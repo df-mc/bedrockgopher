@@ -8,8 +8,8 @@ import (
 )
 
 type timeoutArgs struct {
-	User     discordgo.User `diskoi:"description:The user to timeout;required"`
-	Duration string         `diskoi:"description:How long should they be timed out for;required"`
+	User     discordgo.User `diskoi:"description:The user to timeout,required"`
+	Duration string         `diskoi:"description:How long should they be timed out for,required"`
 }
 
 func Timeout() diskoi.Command {
