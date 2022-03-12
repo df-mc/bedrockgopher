@@ -14,19 +14,7 @@ type timeoutArgs struct {
 
 func Timeout() diskoi.Command {
 	cmd := diskoi.MustNewExecutor("timeout", "timeout a user", timeout)
-	_ = cmd.SetChain(diskoi.NewChain(func(next diskoi.Middleware) diskoi.Middleware {
-		return func(r diskoi.Request) error {
-			member := r.Interaction().Member
-			if member.Permissions&discordgo.PermissionModerateMembers > 0 {
-				return next(r)
-			}
-
-			return r.Session().InteractionRespond(r.Interaction().Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{Content: "You do not have the required permissions to run this command", Flags: 1 << 6},
-			})
-		}
-	}))
+	_ = cmd.SetChain(diskoi.NewChain(checkPerms(discordgo.PermissionManageMessages)))
 	return cmd
 }
 
