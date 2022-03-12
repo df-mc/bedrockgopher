@@ -19,7 +19,7 @@ type faqEdit struct {
 
 // FAQ represents the /faq command. It allows a moderator to create and manage FAQs.
 func FAQ(bot *bedrockgopher.Bot) diskoi.Command {
-	newE := diskoi.MustNewExecutor("new", "Create a new FAQ entry", func(s *discordgo.Session, i *discordgo.InteractionCreate, ma *diskoi.MetaArgument, args faqNew) error {
+	newE := diskoi.MustNewExecutor("new", "Create a new FAQ entry", func(s *discordgo.Session, i *discordgo.InteractionCreate, args faqNew) error {
 		embed := &discordgo.MessageEmbed{Color: 0x00add8, Title: args.Question, Description: args.Answer}
 		if _, err := s.ChannelMessageSendEmbed(i.ChannelID, embed); err != nil {
 			bot.Logger().Errorf("failed to send message: %v", err)
@@ -37,7 +37,7 @@ func FAQ(bot *bedrockgopher.Bot) diskoi.Command {
 	newE.MustSetRequired("Question", true)
 	newE.MustSetRequired("Answer", true)
 
-	editE := diskoi.MustNewExecutor("edit", "Edit a FAQ entry", func(s *discordgo.Session, i *discordgo.InteractionCreate, ma *diskoi.MetaArgument, args faqEdit) error {
+	editE := diskoi.MustNewExecutor("edit", "Edit a FAQ entry", func(s *discordgo.Session, i *discordgo.InteractionCreate, args faqEdit) error {
 		message, err := s.ChannelMessage(i.ChannelID, args.MessageID)
 		if err != nil || message.Author.ID != bot.Session().State.User.ID || len(message.Embeds) == 0 {
 			bot.Logger().Errorf("failed to edit message: %v", err)
