@@ -68,12 +68,12 @@ func (b *Bot) GuildID() string {
 
 // Run attempts to open the discord session and run the bot until a signal interrupt is received.
 func (b *Bot) Run() error {
-	//if err := b.session.Open(); err != nil {
-	//	return fmt.Errorf("failed to open discord session: %s", err)
-	//}
+	if err := b.session.Open(); err != nil {
+		return fmt.Errorf("failed to open discord session: %s", err)
+	}
 
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
 	if err := b.session.Close(); err != nil {
