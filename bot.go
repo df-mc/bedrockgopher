@@ -93,6 +93,9 @@ func (b *Bot) Intents(intents ...discordgo.Intent) {
 // updateURL is the URL to check for updates.
 const updateURL = "https://itunes.apple.com/lookup?bundleId=com.mojang.minecraftpe&time=%v"
 
+// currentVersion is the current version of Minecraft.
+var currentVersion = "1.19.2"
+
 // startUpdateTicking starts a ticker which checks for new Minecraft updates every minute.
 func (b *Bot) startUpdateTicking() {
 	t := time.NewTicker(time.Second * 30)
@@ -115,7 +118,7 @@ func (b *Bot) startUpdateTicking() {
 			_ = resp.Body.Close()
 			if m["resultCount"].(float64) > 0 {
 				version := m["results"].([]interface{})[0].(map[string]interface{})["version"].(string)
-				if version == "1.19.2" {
+				if version == currentVersion {
 					continue
 				}
 				_, err := b.session.ChannelMessageSend("671024455979630620", "Minecraft v"+version+" is now available! @here")
@@ -123,6 +126,7 @@ func (b *Bot) startUpdateTicking() {
 					b.logger.Errorf("failed to send update message: %s", err)
 				}
 				b.logger.Infof("new version available: v%s", version)
+				currentVersion = version
 			}
 		case <-b.c:
 			return
