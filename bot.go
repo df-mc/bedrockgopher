@@ -76,10 +76,12 @@ func (b *Bot) Run() error {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
+	b.logger.Info("bedrock gopher is shutting down...")
 	if err := b.session.Close(); err != nil {
 		return fmt.Errorf("failed to close discord session: %s", err)
 	}
 	b.c <- struct{}{}
+	b.logger.Info("bye!")
 	return nil
 }
 
