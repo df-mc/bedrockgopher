@@ -68,9 +68,9 @@ func (b *Bot) GuildID() string {
 
 // Run attempts to open the discord session and run the bot until a signal interrupt is received.
 func (b *Bot) Run() error {
-	if err := b.session.Open(); err != nil {
-		return fmt.Errorf("failed to open discord session: %s", err)
-	}
+	//if err := b.session.Open(); err != nil {
+	//	return fmt.Errorf("failed to open discord session: %s", err)
+	//}
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
@@ -94,11 +94,11 @@ func (b *Bot) Intents(intents ...discordgo.Intent) {
 const updateURL = "https://itunes.apple.com/lookup?bundleId=com.mojang.minecraftpe&time=%v"
 
 // currentVersion is the current version of Minecraft.
-var currentVersion = "1.19.2"
+var currentVersion string
 
 // startUpdateTicking starts a ticker which checks for new Minecraft updates every minute.
 func (b *Bot) startUpdateTicking() {
-	t := time.NewTicker(time.Second * 30)
+	t := time.NewTicker(time.Second * 5)
 	defer t.Stop()
 
 	for {
@@ -118,7 +118,13 @@ func (b *Bot) startUpdateTicking() {
 			_ = resp.Body.Close()
 			if m["resultCount"].(float64) > 0 {
 				version := m["results"].([]interface{})[0].(map[string]interface{})["version"].(string)
+				if len(currentVersion) == 0 {
+					// We can assume that the latest version is not the first query, so set the current version to this
+					// version.
+					currentVersion = version
+				}
 				if version == currentVersion {
+					// We don't care about the current version.
 					continue
 				}
 				_, err := b.session.ChannelMessageSend("671024455979630620", "Minecraft v"+version+" is now available! @here")
