@@ -15,7 +15,7 @@ var (
 	// guildID is the identifier of the Bedrock Gophers guild. The bot is designed to be used in one guild specifically
 	// due to the limitations of registering slash commands globally. It also makes it easier to manage things such as
 	// channels and roles as they can be controlled manually.
-	guildID string = "623638955262345216"
+	guildID = "623638955262345216"
 )
 
 func main() {

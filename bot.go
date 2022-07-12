@@ -1,13 +1,16 @@
 package bedrockgopher
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
 	"github.com/thunder33345/diskoi"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 // Bot represents the Bedrock Gopher discord bot.
@@ -19,6 +22,8 @@ type Bot struct {
 
 	session *discordgo.Session
 	guildID string
+
+	c chan struct{}
 }
 
 // New creates a new Bot with the provided token, and creates a discord session.
@@ -42,6 +47,7 @@ func New(logger *logrus.Logger, token, guildID string) (*Bot, error) {
 
 		guildID: guildID,
 	}
+	go b.startUpdateTicking()
 	return b, nil
 }
 
@@ -73,6 +79,7 @@ func (b *Bot) Run() error {
 	if err := b.session.Close(); err != nil {
 		return fmt.Errorf("failed to close discord session: %s", err)
 	}
+	b.c <- struct{}{}
 	return nil
 }
 
@@ -80,5 +87,45 @@ func (b *Bot) Run() error {
 func (b *Bot) Intents(intents ...discordgo.Intent) {
 	for _, i := range intents {
 		b.session.Identify.Intents |= i
+	}
+}
+
+// updateURL is the URL to check for updates.
+const updateURL = "https://itunes.apple.com/lookup?bundleId=com.mojang.minecraftpe&time=%v"
+
+// startUpdateTicking starts a ticker which checks for new Minecraft updates every minute.
+func (b *Bot) startUpdateTicking() {
+	t := time.NewTicker(time.Second * 30)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-t.C:
+			resp, err := http.Get(fmt.Sprintf(updateURL, time.Now().UnixMilli()))
+			if err != nil {
+				b.logger.Errorf("failed to check for updates: %s", err)
+				continue
+			}
+			var m map[string]interface{}
+			if err = json.NewDecoder(resp.Body).Decode(&m); err != nil {
+				b.logger.Errorf("failed to decode response: %s", err)
+				_ = resp.Body.Close()
+				continue
+			}
+			_ = resp.Body.Close()
+			if m["resultCount"].(float64) > 0 {
+				version := m["results"].([]interface{})[0].(map[string]interface{})["version"].(string)
+				if version == "1.19.2" {
+					continue
+				}
+				_, err := b.session.ChannelMessageSend("671024455979630620", "Minecraft v"+version+" is now available! @here")
+				if err != nil {
+					b.logger.Errorf("failed to send update message: %s", err)
+				}
+				b.logger.Infof("new version available: v%s", version)
+			}
+		case <-b.c:
+			return
+		}
 	}
 }
