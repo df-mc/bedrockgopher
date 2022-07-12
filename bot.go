@@ -80,6 +80,7 @@ func (b *Bot) Run() error {
 	if err := b.session.Close(); err != nil {
 		return fmt.Errorf("failed to close discord session: %s", err)
 	}
+	b.logger.Info("stopping update ticking...")
 	b.c <- struct{}{}
 	b.logger.Info("bye!")
 	return nil
