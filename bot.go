@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
 	"github.com/thunder33345/diskoi"
+	"golang.org/x/exp/slices"
 	"net/http"
 	"os"
 	"os/signal"
@@ -96,8 +97,8 @@ func (b *Bot) Intents(intents ...discordgo.Intent) {
 // updateURL is the URL to check for updates.
 const updateURL = "https://itunes.apple.com/lookup?bundleId=com.mojang.minecraftpe&time=%v"
 
-// currentVersion is the current version of Minecraft.
-var currentVersion string
+// knownVersions is a slice of all known versions of Minecraft.
+var knownVersions []string
 
 // startUpdateTicking starts a ticker which checks for new Minecraft updates every minute.
 func (b *Bot) startUpdateTicking() {
@@ -121,12 +122,13 @@ func (b *Bot) startUpdateTicking() {
 			_ = resp.Body.Close()
 			if m["resultCount"].(float64) > 0 {
 				version := m["results"].([]interface{})[0].(map[string]interface{})["version"].(string)
-				if len(currentVersion) == 0 {
+				if len(knownVersions) == 0 {
 					// We can assume that the latest version is not the first query, so set the current version to this
 					// version.
-					currentVersion = version
+					knownVersions = append(knownVersions, version)
+					continue
 				}
-				if version == currentVersion {
+				if slices.Contains(knownVersions, version) {
 					// We don't care about the current version.
 					continue
 				}
@@ -135,7 +137,7 @@ func (b *Bot) startUpdateTicking() {
 					b.logger.Errorf("failed to send update message: %s", err)
 				}
 				b.logger.Infof("new version available: v%s", version)
-				currentVersion = version
+				knownVersions = append(knownVersions, version)
 			}
 		case <-b.c:
 			return
