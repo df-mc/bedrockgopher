@@ -24,7 +24,7 @@ type Bot struct {
 	session *discordgo.Session
 	guildID string
 
-	c chan struct{}
+	stopC chan struct{}
 }
 
 // New creates a new Bot with the provided token, and creates a discord session.
@@ -47,6 +47,8 @@ func New(logger *logrus.Logger, token, guildID string) (*Bot, error) {
 		session: s,
 
 		guildID: guildID,
+
+		stopC: make(chan struct{}, 1),
 	}
 	go b.startUpdateTicking()
 	return b, nil
@@ -82,7 +84,7 @@ func (b *Bot) Run() error {
 		return fmt.Errorf("failed to close discord session: %s", err)
 	}
 	b.logger.Info("stopping update ticking...")
-	b.c <- struct{}{}
+	b.stopC <- struct{}{}
 	b.logger.Info("bye!")
 	return nil
 }
@@ -139,7 +141,7 @@ func (b *Bot) startUpdateTicking() {
 				b.logger.Infof("new version available: v%s", version)
 				knownVersions = append(knownVersions, version)
 			}
-		case <-b.c:
+		case <-b.stopC:
 			return
 		}
 	}
