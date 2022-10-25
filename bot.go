@@ -48,7 +48,7 @@ func New(logger *logrus.Logger, token, guildID string) (*Bot, error) {
 
 		guildID: guildID,
 
-		stopC: make(chan struct{}, 1),
+		stopC: make(chan struct{}),
 	}
 	go b.startUpdateTicking()
 	return b, nil
