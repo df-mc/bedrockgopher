@@ -73,8 +73,8 @@ func (b *Bot) Run() error {
 		return fmt.Errorf("failed to open discord session: %s", err)
 	}
 
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	sc := make(chan os.Signal, 2)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM)
 	<-sc
 
 	b.logger.Info("bedrock gopher is shutting down...")
